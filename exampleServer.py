@@ -10,19 +10,20 @@
 #
 
 from flask import Flask, request, jsonify
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="")
 
 app.debug = True
 
-import liftlib
+import liftlib, config, simplejson
 from liftdebuggers import console
 from liftstorage import fileSys
 
-lift = liftlib.LiftLib(storage=fileSys.Storage('../test_liftstorage/'), debugger=console)
+storage = fileSys.Storage(config.settings["database"]["directory"])
+lift = liftlib.LiftLib(storage=storage, debugger=console)
 
-@app.route("/device-api/")
-def default():
-	return "Redirect to Python documentation?"
+@app.route("/")
+def webapp():
+	return app.send_static_file('index.html')
 
 @app.route("/device-api/debug", methods=["POST", "PUT", "GET"])
 def debug():
@@ -74,5 +75,48 @@ def rpc():
 			'code': 'You can only use PUT requests.'
 		})
 
+@app.route("/app-api/devices", methods=["GET"])
+def app_devices_get():
+	return jsonify(**{
+		"devices": storage.getDevices()
+	})
+
+@app.route("/app-api/device/<id>", methods=["GET"])
+def app_device_get(id):
+	return jsonify(**{
+		"device": storage.readDevice(id)
+	})
+
+@app.route("/app-api/devicetype", methods=["PUT"])
+def app_add_devicetype():
+	data = simplejson.loads(request.data)
+	return jsonify(**{
+		"data": storage.addDeviceType(data["name"], data["json"])
+	})
+
+@app.route("/app-api/devicetypes", methods=["GET"])
+def app_get_devicetypes():
+	return jsonify(**{
+		"devicetypes": storage.getDeviceTypes()
+	})
+
+@app.route("/app-api/deletedevicetype", methods=["PUT"])
+def app_delete_devicetype():
+	return jsonify(**{
+		"data": storage.deleteDeviceType(simplejson.loads(request.data)["id"])
+	})
+
+@app.route("/app-api/updatedevice", methods=["PUT"])
+def app_update_device():
+	return jsonify(**{
+		"data": storage.updateDevice(simplejson.loads(request.data))
+	})
+
+@app.route("/app-api/purgeactions", methods=["PUT"])
+def app_purgeactions():
+	return jsonify(**{
+		"data": storage.purgeAllAct(simplejson.loads(request.data)["id"])
+	})
+
 if __name__ == "__main__":
-    app.run(port=3666, host="0.0.0.0")
+    app.run(port=config.settings["server"]["port"], host=config.settings["server"]["host"])

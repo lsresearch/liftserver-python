@@ -1,0 +1,4 @@
+liftstorage/test_liftstorage
+testing.py
+*.pyc
+sftp-config.json
