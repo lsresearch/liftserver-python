@@ -51,9 +51,10 @@ def rpc():
 				data = transform.load(request, 'rpc')
 				if "method" in data:
 					if data["method"] == "GetAuthInfo":
+						print "SENDING AUTH INFO"
 						return transform.makeResponse({"jsonrpc": "2.0", 
 							"result":{
-								"deviceID": data["params"]["deviceId"],
+								"deviceId": data["params"]["deviceId"],
 								"registrationPin": "1234",
 					 			"deviceKey": data["params"]["deviceId"], 
 								"deviceSecret": "1234"

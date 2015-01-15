@@ -172,7 +172,7 @@ angular.module('myApp.device', ['ngRoute'])
 
 					for (var argI=0;argI<action.paramsList.length;argI++){
 
-						var arg = action.params[argI];
+						var arg = action.paramsList[argI];
 
 						adding.args.push({
 							'name': arg.varName,
