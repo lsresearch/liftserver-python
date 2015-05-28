@@ -83,10 +83,15 @@ class LiftLib(object):
 			self.Debugger.output(m)
 
 	def rpc(self, key, data):
+		
+		if "id" in data:
+			respid = data["id"]
+		else:
+			respid = ""
 
 		resp = {
 			"jsonrpc": "2.0",
-			"id": data["id"],
+			"id": respid,
 			"result": {}
 		}
 
